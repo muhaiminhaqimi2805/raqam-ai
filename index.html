@@ -503,4 +503,116 @@
         function formatAIResponse(text) {
             // Helah utama: Buang tag markdown jika AI degil meletakkan kod lukisan dalam kotak kod
             text = text.replace(/```(svg|html|xml)\n?/gi, '');
-            text = text.replace(/
+            text = text.replace(/```\n?/g, '');
+            
+            // Asingkan rajah SVG supaya tag <br> tidak merosakkan garisan lukisan grafik
+            let parts = text.split(/(<svg[\s\S]*?<\/svg>)/gi);
+            for (let i = 0; i < parts.length; i++) {
+                if (!parts[i].toLowerCase().startsWith('<svg')) {
+                    let p = parts[i];
+                    p = p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    p = p.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+                    p = p.replace(/\n/g, '<br>');
+                    parts[i] = p;
+                }
+            }
+            return parts.join('');
+        }
+
+        function handleImageSelection(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImageBase64 = e.target.result;
+                    document.getElementById('image-preview').src = selectedImageBase64;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        function removeImage() {
+            selectedImageBase64 = null;
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('camera-input').value = ""; document.getElementById('gallery-input').value = "";
+        }
+        
+        async function resetMemory() {
+            if(!confirm("Anda pasti mahu membersihkan memori dan memulakan topik baharu?")) return;
+            try {
+                await fetch('/api/reset', { method: 'POST' });
+                const chatBox = document.getElementById('chat-box');
+                chatBox.innerHTML = `
+                    <div class="flex items-start space-x-3 md:space-x-4 w-full md:w-4/5 animate-fade-in">
+                        <div class="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-md border-2 border-white"><i class="fas fa-robot"></i></div>
+                        <div class="chat-bubble-bot p-4 md:p-5 rounded-2xl text-gray-800 text-sm md:text-base shadow-sm border border-blue-100 leading-relaxed">
+                            <strong>Memori berjaya dibersihkan! 🧹</strong><br><br>Sedia untuk topik baharu. Apa yang boleh saya bantu hari ini?
+                        </div>
+                    </div>
+                `;
+            } catch (error) { console.error("Gagal memadam memori:", error); }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value;
+            if(message.trim() === "" && !selectedImageBase64) return;
+            const chatBox = document.getElementById('chat-box');
+            let userContentHtml = '';
+            if (selectedImageBase64) { userContentHtml += `<img src="${selectedImageBase64}" class="w-full max-w-xs rounded-lg mb-2 border border-blue-800 shadow-sm">`; }
+            if (message.trim() !== "") { userContentHtml += `<span>${message.replace(/\n/g, '<br>')}</span>`; }
+            const userHtml = `
+                <div class="flex items-start justify-end space-x-3 w-full animate-fade-in mt-6">
+                    <div class="chat-bubble-user p-4 rounded-2xl text-sm md:text-base shadow-md max-w-[85%] md:max-w-2xl leading-relaxed flex flex-col items-end">
+                        ${userContentHtml}
+                    </div>
+                </div>`;
+            chatBox.insertAdjacentHTML('beforeend', userHtml);
+            input.value = ""; input.style.height = ''; 
+            const imageToSend = selectedImageBase64; removeImage(); chatBox.scrollTop = chatBox.scrollHeight;
+
+            const loadingId = "loading-" + Date.now();
+            const botHtml = `
+                <div id="${loadingId}" class="flex items-start space-x-3 md:space-x-4 w-full md:w-4/5 animate-fade-in mt-6">
+                    <div class="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-md border-2 border-white"><i class="fas fa-robot"></i></div>
+                    <div class="chat-bubble-bot p-4 rounded-2xl text-gray-800 text-sm shadow-sm flex items-center space-x-2 border border-blue-100">
+                        <span class="flex space-x-1">
+                            <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </span>
+                        <i class="text-blue-600 font-medium ml-2">Sedang melukis rajah & merangka soalan...</i>
+                    </div>
+                </div>`;
+            chatBox.insertAdjacentHTML('beforeend', botHtml);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message || "Tolong selesaikan soalan di dalam gambar ini.", image: imageToSend })
+                });
+                const data = await response.json(); document.getElementById(loadingId).remove();
+                
+                skorSoalan++; localStorage.setItem('skorPelajar', skorSoalan); 
+                document.getElementById('stat-soalan').innerText = skorSoalan;
+                
+                const formattedReply = formatAIResponse(data.reply);
+                const finalBotHtml = `
+                    <div class="flex items-start space-x-3 md:space-x-4 w-full md:w-4/5 animate-fade-in mt-6">
+                        <div class="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-md border-2 border-white"><i class="fas fa-robot"></i></div>
+                        <div class="chat-bubble-bot p-4 md:p-5 rounded-2xl text-gray-800 text-sm md:text-base shadow-sm border border-blue-100 leading-relaxed overflow-x-auto">
+                            ${formattedReply}
+                        </div>
+                    </div>`;
+                chatBox.insertAdjacentHTML('beforeend', finalBotHtml); chatBox.scrollTop = chatBox.scrollHeight;
+                if (window.MathJax) MathJax.typesetPromise();
+            } catch (error) {
+                console.error("Ralat:", error);
+                document.getElementById(loadingId).innerHTML = `<div class="bg-red-50 p-4 rounded-xl text-red-600 text-sm shadow-sm border border-red-200">Maaf, pelayan tidak dapat memproses data.</div>`;
+            }
+        }
+        function handleKeyPress(e) { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+    </script>
+</body>
+</html>
