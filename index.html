@@ -9,11 +9,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     
-    <!-- ================= BAHARU: KONFIGURASI MATHJAX ================= -->
+    <!-- KONFIGURASI MATHJAX -->
     <script>
         window.MathJax = {
             tex: {
-                // Arahkan MathJax untuk membaca simbol $ sebagai formula Matematik
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']]
             }
@@ -35,22 +34,44 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
-        
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        
         .menu-active { background-color: #1e40af; border-left-width: 4px; border-color: #F97316; color: white; }
         .menu-inactive { color: #d1d5db; border-left-width: 4px; border-color: transparent; }
         .menu-inactive:hover { background-color: #1e40af; color: white; }
-        
         .hover-card { transition: all 0.3s ease; }
         .hover-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
 <body class="bg-gray-50 font-sans flex h-screen overflow-hidden text-gray-800">
+
+    <!-- ================= KAWASAN LOG MASUK (LOGIN SCREEN) ================= -->
+    <div id="login-screen" class="fixed inset-0 bg-primary z-[100] flex justify-center items-center transition-opacity duration-300">
+        <div class="bg-white p-8 md:p-10 rounded-3xl shadow-2xl w-[90%] max-w-md animate-fade-in flex flex-col items-center">
+            <div class="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center font-bold text-3xl text-white shadow-lg mb-4">R</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Log Masuk Raqam.ai</h2>
+            <p class="text-gray-500 text-sm mb-8 text-center">Platform Socratic AI Tutor Matematik Tambahan</p>
+            
+            <div class="w-full space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1.5"><i class="fas fa-envelope mr-1 text-primary"></i> Alamat E-mel</label>
+                    <input type="email" id="login-email" placeholder="contoh: pelajar@usim.edu.my" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition bg-gray-50" onkeypress="handleLoginEnter(event)">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1.5"><i class="fas fa-lock mr-1 text-primary"></i> Kata Laluan</label>
+                    <input type="password" id="login-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition bg-gray-50" onkeypress="handleLoginEnter(event)">
+                </div>
+                
+                <button onclick="logMasuk()" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-blue-900 transition-transform active:scale-95 shadow-lg mt-4 flex justify-center items-center">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Masuk ke Sistem
+                </button>
+            </div>
+            <p id="login-error" class="text-red-500 text-sm mt-4 hidden font-medium"><i class="fas fa-exclamation-circle mr-1"></i> E-mel dan kata laluan diperlukan!</p>
+        </div>
+    </div>
+    <!-- ================= END LOGIN SCREEN ================= -->
 
     <!-- SIDEBAR -->
     <aside class="hidden md:flex w-64 bg-primary text-white flex-col justify-between transition-all duration-300 shadow-xl z-20">
@@ -87,12 +108,16 @@
                 </button>
             </nav>
         </div>
-        <div class="p-6">
+        <div class="p-6 space-y-3">
             <div class="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl p-5 text-sm shadow-lg border border-blue-700">
                 <p class="font-bold mb-1 text-white">Pro Plan</p>
                 <p class="text-blue-200 mb-4 text-xs leading-relaxed">Unlimited AI OCR scans & Full Working Steps.</p>
-                <button class="w-full bg-secondary text-white py-2.5 rounded-lg font-bold hover:bg-orange-600 transition-transform active:scale-95 shadow-md">Upgrade Now</button>
+                <button class="w-full bg-secondary text-white py-2 rounded-lg font-bold hover:bg-orange-600 transition-transform active:scale-95 shadow-md">Upgrade Now</button>
             </div>
+            <!-- BUTANG LOG KELUAR -->
+            <button onclick="logKeluar()" class="w-full bg-blue-900 text-blue-300 hover:text-white py-2.5 rounded-lg text-sm font-bold hover:bg-red-600 transition-colors flex justify-center items-center shadow-inner">
+                <i class="fas fa-sign-out-alt mr-2"></i> Log Keluar
+            </button>
         </div>
     </aside>
 
@@ -117,8 +142,9 @@
             <div class="flex items-center space-x-2 md:space-x-3 overflow-x-auto">
                 <button onclick="paparDashboard()" class="md:hidden bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-xs font-bold border border-gray-200 shadow-sm flex items-center whitespace-nowrap"><i class="fas fa-home mr-1"></i> Dashboard</button>
                 <button onclick="paparSembang()" class="md:hidden bg-blue-100 text-primary px-3 py-1.5 rounded-full text-xs font-bold border border-blue-200 shadow-sm flex items-center whitespace-nowrap"><i class="fas fa-robot mr-1"></i> Chat</button>
+                <button onclick="logKeluar()" class="md:hidden bg-red-50 text-red-600 px-3 py-1.5 rounded-full text-xs font-bold border border-red-100 shadow-sm flex items-center whitespace-nowrap"><i class="fas fa-sign-out-alt"></i></button>
                 <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary shadow-sm ring-2 ring-white cursor-pointer hidden md:block flex-shrink-0">
-                    <img src="https://ui-avatars.com/api/?name=Muhaimin+Haqimi&background=1E3A8A&color=fff" alt="Profile">
+                    <img id="profil-avatar" src="" alt="Profile">
                 </div>
             </div>
         </header>
@@ -129,13 +155,12 @@
                 <div class="flex items-start space-x-3 md:space-x-4 w-full md:w-4/5 animate-fade-in">
                     <div class="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-md border-2 border-white"><i class="fas fa-robot"></i></div>
                     <div class="chat-bubble-bot p-4 md:p-5 rounded-2xl text-gray-800 text-sm md:text-base shadow-sm border border-blue-100 leading-relaxed">
-                        Hai <strong>Muhaimin</strong>! 👋 <br><br>Anda mahu menguji tahap kefahaman anda? Tekan mana-mana butang <strong>Arahan Pantas</strong> di bawah untuk menjana soalan Mock Exam SPM yang baharu!
+                        <span id="chat-greeting">Hai <strong>Pelajar</strong>! 👋</span> <br><br>Anda mahu menguji tahap kefahaman anda? Tekan mana-mana butang <strong>Arahan Pantas</strong> di bawah untuk menjana soalan Mock Exam SPM yang baharu!
                     </div>
                 </div>
             </div>
 
             <div class="p-4 md:p-6 bg-white border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] flex flex-col">
-                
                 <div class="flex space-x-2 mb-3 overflow-x-auto pb-1 hide-scrollbar max-w-4xl mx-auto w-full">
                     <button onclick="hantarPromptSegera('Tolong bina SATU soalan Mock Exam Kertas 1 Matematik Tambahan SPM (format KSSM terkini). Berikan soalan sahaja dahulu supaya saya boleh cuba jawab.')" class="whitespace-nowrap bg-white border border-blue-200 text-primary px-4 py-1.5 rounded-full text-[11px] md:text-xs font-bold hover:bg-blue-50 transition shadow-sm flex items-center">
                         <i class="fas fa-bullseye text-blue-500 mr-1.5"></i> Ujian Kertas 1
@@ -149,7 +174,6 @@
                 </div>
 
                 <div class="max-w-4xl mx-auto flex flex-col space-y-3 w-full">
-                    
                     <div id="image-preview-container" class="hidden relative inline-block max-w-[150px]">
                         <img id="image-preview" src="" alt="Preview" class="w-full h-auto rounded-lg border-2 border-primary shadow-md">
                         <button onclick="removeImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 shadow-md"><i class="fas fa-times"></i></button>
@@ -187,16 +211,13 @@
         <div id="section-dashboard" class="flex-1 bg-slate-50 overflow-y-auto p-6 md:p-10 hidden">
             <div class="max-w-6xl mx-auto animate-fade-in">
                 
-                <div class="bg-gradient-to-r from-primary to-blue-700 rounded-3xl p-8 text-white shadow-xl mb-8 flex flex-col md:flex-row justify-between items-center relative overflow-hidden hover-card cursor-pointer" onclick="paparSembang()">
+                <div class="bg-gradient-to-r from-primary to-blue-700 rounded-3xl p-8 text-white shadow-xl mb-8 flex flex-col md:flex-row justify-between items-center relative overflow-hidden">
                     <div class="absolute -right-10 -top-10 opacity-20"><i class="fas fa-square-root-alt text-9xl"></i></div>
-                    <div class="z-10 relative">
-                        <h2 class="text-3xl font-bold mb-2">Selamat Datang, Muhaimin! 🚀</h2>
+                    <div class="z-10 relative w-full">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between w-full mb-2">
+                            <h2 class="text-3xl font-bold mb-2 md:mb-0">Selamat Datang, <span id="display-nama">Pelajar</span>! 🚀</h2>
+                        </div>
                         <p class="text-blue-200 text-lg">Teruskan usaha cemerlang anda dalam Matematik Tambahan hari ini.</p>
-                    </div>
-                    <div class="mt-6 md:mt-0 z-10">
-                        <button class="bg-secondary hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-transform active:scale-95 flex items-center">
-                            <i class="fas fa-pen mr-2"></i> Mula Belajar
-                        </button>
                     </div>
                 </div>
 
@@ -205,7 +226,7 @@
                         <div class="w-14 h-14 rounded-full bg-blue-100 text-primary flex items-center justify-center text-2xl mr-4"><i class="fas fa-question"></i></div>
                         <div>
                             <p class="text-gray-500 text-sm font-medium">Soalan Diselesaikan</p>
-                            <h3 id="stat-soalan" class="text-3xl font-bold text-gray-800">42</h3>
+                            <h3 id="stat-soalan" class="text-3xl font-bold text-gray-800">0</h3>
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center hover-card cursor-pointer">
@@ -290,7 +311,7 @@
                 <h3 class="font-bold text-lg flex items-center"><i class="fas fa-book mr-3"></i> Buku Teks Add Math (Tingkatan 4)</h3>
                 <button onclick="tutupBukuTeksT4()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="buku_teks_tingkatan_4.pdf" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
+            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="MASUKKAN_PAUTAN_PREVIEW_GOOGLE_DRIVE_DI_SINI" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
         </div>
     </div>
     <div id="modal-buku-teks-t5" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
@@ -299,7 +320,7 @@
                 <h3 class="font-bold text-lg flex items-center"><i class="fas fa-book-open mr-3"></i> Buku Teks Add Math (Tingkatan 5)</h3>
                 <button onclick="tutupBukuTeksT5()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="buku_teks_tingkatan_5.pdf" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
+            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="MASUKKAN_PAUTAN_PREVIEW_GOOGLE_DRIVE_DI_SINI" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
         </div>
     </div>
     <div id="modal-koleksi" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
@@ -308,7 +329,7 @@
                 <h3 class="font-bold text-lg flex items-center text-yellow-300"><i class="fas fa-file-signature mr-3"></i> Koleksi Pembuktian Add Math SPM</h3>
                 <button onclick="tutupKoleksi()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="koleksi_pembuktian.pdf" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
+            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="MASUKKAN_PAUTAN_PREVIEW_GOOGLE_DRIVE_DI_SINI" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
         </div>
     </div>
     <div id="modal-video" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
@@ -318,18 +339,86 @@
                 <button onclick="tutupVideo()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
             <div class="flex-1 bg-black p-0 relative aspect-video">
-                <video id="video-player" controls class="w-full h-full outline-none">
-                    <source src="video_mengajar.mp4" type="video/mp4">
-                    Maaf, pelayar web anda tidak menyokong pemain video ini.
-                </video>
+                <iframe src="MASUKKAN_PAUTAN_EMBED_YOUTUBE_DI_SINI" class="w-full h-full outline-none" allowfullscreen></iframe>
             </div>
         </div>
     </div>
 
     <script>
+        // ================= SISTEM AUTHENTICATION & PERSONALISASI =================
+        let skorSoalan = localStorage.getItem('skorPelajar') ? parseInt(localStorage.getItem('skorPelajar')) : 0;
+
+        function semakLogin() {
+            let emel = localStorage.getItem('emelPengguna');
+            if (emel) {
+                // Jika sudah log masuk, sembunyikan skrin login dan muat profil
+                document.getElementById('login-screen').classList.add('hidden');
+                muatProfil();
+            } else {
+                // Jika belum log masuk, paparkan skrin login
+                document.getElementById('login-screen').classList.remove('hidden');
+            }
+        }
+
+        function handleLoginEnter(e) {
+            if(e.key === 'Enter') { e.preventDefault(); logMasuk(); }
+        }
+
+        function logMasuk() {
+            const emailInput = document.getElementById('login-email').value;
+            const passInput = document.getElementById('login-password').value;
+            const errorMsg = document.getElementById('login-error');
+
+            if (emailInput && passInput) {
+                errorMsg.classList.add('hidden');
+                
+                // Ekstrak nama daripada e-mel (contoh: ali@usim.my -> ali)
+                let extractedName = emailInput.split('@')[0];
+                // Besarkan huruf pertama (ali -> Ali)
+                extractedName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1);
+
+                // Simpan data log masuk
+                localStorage.setItem('emelPengguna', emailInput);
+                localStorage.setItem('namaPelajar', extractedName);
+
+                // Sembunyikan skrin login dan muat UI
+                document.getElementById('login-screen').classList.add('hidden');
+                muatProfil();
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        function logKeluar() {
+            if(confirm("Adakah anda pasti untuk log keluar?")) {
+                localStorage.removeItem('emelPengguna');
+                localStorage.removeItem('namaPelajar');
+                location.reload(); // Muat semula halaman untuk kembali ke skrin login
+            }
+        }
+
+        function muatProfil() {
+            let nama = localStorage.getItem('namaPelajar');
+            if (!nama) nama = "Pelajar Hebat"; // Langkah berjaga-jaga
+            
+            // Kemas kini nama di Dashboard, Sembang, dan Avatar
+            document.getElementById('display-nama').innerText = nama;
+            document.getElementById('chat-greeting').innerHTML = `Hai <strong>${nama}</strong>! 👋`;
+            
+            // Avatar diubah secara dinamik mengikut nama
+            document.getElementById('profil-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=1E3A8A&color=fff`;
+
+            if(document.getElementById('stat-soalan')) {
+                document.getElementById('stat-soalan').innerText = skorSoalan;
+            }
+        }
+
+        // Semak status login sebaik sahaja laman web dibuka
+        window.addEventListener('DOMContentLoaded', semakLogin);
+
+
         // ================= KAWALAN DASHBOARD & GRAF =================
         let grafDilukis = false; 
-
         function lukisGrafPrestasi() {
             if (grafDilukis) return;
             const ctx = document.getElementById('prestasiChart').getContext('2d');
@@ -344,9 +433,7 @@
                     datasets: [{
                         label: 'Soalan Diselesaikan',
                         data: [3, 5, 4, 12, 8, 15, 6],
-                        borderColor: '#1E3A8A', 
-                        backgroundColor: gradient,
-                        borderWidth: 3, tension: 0.4, fill: true,
+                        borderColor: '#1E3A8A', backgroundColor: gradient, borderWidth: 3, tension: 0.4, fill: true,
                         pointBackgroundColor: '#F97316', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointRadius: 5, pointHoverRadius: 8
                     }]
                 },
@@ -386,7 +473,7 @@
         function bukaKoleksi() { document.getElementById('modal-koleksi').classList.remove('hidden'); }
         function tutupKoleksi() { document.getElementById('modal-koleksi').classList.add('hidden'); }
         function bukaVideo() { document.getElementById('modal-video').classList.remove('hidden'); }
-        function tutupVideo() { document.getElementById('modal-video').classList.add('hidden'); document.getElementById('video-player').pause(); }
+        function tutupVideo() { document.getElementById('modal-video').classList.add('hidden'); }
 
         function hantarPromptSegera(teksPrompt) {
             const inputChat = document.getElementById('chat-input');
@@ -401,9 +488,8 @@
         }
 
         let selectedImageBase64 = null;
-        let skorSoalan = 42; 
 
-        // FUNGSI SUARA KE TEKS
+        // FUNGSI SUARA & AI
         function mulaMendengar() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) { alert("Maaf, pelayar web anda tidak menyokong fungsi pengecaman suara."); return; }
@@ -414,25 +500,20 @@
 
             recognition.onstart = function() {
                 btnMic.classList.remove('text-gray-400', 'bg-gray-50'); btnMic.classList.add('text-white', 'bg-red-500', 'animate-pulse');
-                inputChat.placeholder = "Sedang mendengar (Sila bercakap)...";
+                inputChat.placeholder = "Sedang mendengar...";
             };
             recognition.onresult = function(event) {
-                const ucapan = event.results[0][0].transcript;
-                inputChat.value += (inputChat.value ? " " : "") + ucapan; 
+                inputChat.value += (inputChat.value ? " " : "") + event.results[0][0].transcript; 
                 inputChat.style.height = ''; inputChat.style.height = inputChat.scrollHeight + 'px';
             };
             recognition.onspeechend = function() { recognition.stop(); };
             recognition.onend = function() {
                 btnMic.classList.add('text-gray-400', 'bg-gray-50'); btnMic.classList.remove('text-white', 'bg-red-500', 'animate-pulse');
-                inputChat.placeholder = "Minta bantuan untuk selesaikan soalan ini...";
-            };
-            recognition.onerror = function(event) {
-                console.error("Ralat Suara:", event.error); inputChat.placeholder = "Gagal menangkap suara. Sila taip...";
+                inputChat.placeholder = "Minta bantuan atau jana soalan...";
             };
             recognition.start();
         }
 
-        // FUNGSI SEMBANG AI
         function formatAIResponse(text) {
             let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             formatted = formatted.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
@@ -513,7 +594,9 @@
                 });
                 const data = await response.json(); document.getElementById(loadingId).remove();
                 
-                skorSoalan++; document.getElementById('stat-soalan').innerText = skorSoalan;
+                // KEMAS KINI SKOR & SIMPAN
+                skorSoalan++; localStorage.setItem('skorPelajar', skorSoalan); 
+                document.getElementById('stat-soalan').innerText = skorSoalan;
                 
                 const formattedReply = formatAIResponse(data.reply);
                 const finalBotHtml = `
