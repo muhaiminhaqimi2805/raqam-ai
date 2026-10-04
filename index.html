@@ -29,7 +29,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Dedahkan fungsi ke global window supaya boleh dipanggil dari HTML
         window.firebaseAuth = auth;
         window.firebaseDb = db;
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
@@ -42,7 +41,6 @@
         window.updateDoc = updateDoc;
         window.increment = increment;
 
-        // Semak status auth apabila aplikasi dimuatkan
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('login-screen').classList.add('hidden');
@@ -275,38 +273,56 @@
                         <div><p class="text-gray-500 text-sm font-medium">Tahap Kefahaman</p><h3 class="text-3xl font-bold text-gray-800">Cemerlang</h3></div>
                     </div>
                 </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover-card">
+                    <div class="flex justify-between items-center border-b pb-4 mb-4">
+                        <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-chart-area mr-2 text-primary"></i> Analitik Pembelajaran Mingguan</h3>
+                    </div>
+                    <div class="relative h-64 w-full">
+                        <canvas id="prestasiChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- MODAL-MODAL PERPUSTAKAAN -->
+    <!-- MODAL-MODAL PERPUSTAKAAN (Terus dipautkan dengan folder Google Drive anda) -->
     <div id="modal-buku-teks-t4" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
         <div class="bg-white w-[95%] md:w-[85%] h-[90%] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in relative">
             <div class="bg-primary text-white p-4 flex justify-between items-center shadow-md z-10">
                 <h3 class="font-bold text-lg flex items-center"><i class="fas fa-book mr-3"></i> Buku Teks Add Math (Tingkatan 4)</h3>
                 <button onclick="tutupBukuTeksT4()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="MASUKKAN_PAUTAN_PREVIEW_GOOGLE_DRIVE_DI_SINI" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
+            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;">
+                <iframe src="https://drive.google.com/file/d/1HykLlDuN5CqKgpKe6o6eZbUHl4p6IDPy/preview" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe>
+            </div>
         </div>
     </div>
+    
     <div id="modal-buku-teks-t5" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
         <div class="bg-white w-[95%] md:w-[85%] h-[90%] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in relative">
             <div class="bg-primary text-white p-4 flex justify-between items-center shadow-md z-10">
                 <h3 class="font-bold text-lg flex items-center"><i class="fas fa-book-open mr-3"></i> Buku Teks Add Math (Tingkatan 5)</h3>
                 <button onclick="tutupBukuTeksT5()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="MASUKKAN_PAUTAN_PREVIEW_GOOGLE_DRIVE_DI_SINI" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
+            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;">
+                <iframe src="https://drive.google.com/file/d/1HykLlDuN5CqKgpKe6o6eZbUHl4p6IDPy/preview" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe>
+            </div>
         </div>
     </div>
+    
     <div id="modal-koleksi" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
         <div class="bg-white w-[95%] md:w-[85%] h-[90%] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in relative">
             <div class="bg-primary text-white p-4 flex justify-between items-center shadow-md z-10">
                 <h3 class="font-bold text-lg flex items-center text-yellow-300"><i class="fas fa-file-signature mr-3"></i> Koleksi Pembuktian Add Math SPM</h3>
                 <button onclick="tutupKoleksi()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="MASUKKAN_PAUTAN_PREVIEW_GOOGLE_DRIVE_DI_SINI" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
+            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;">
+                <iframe src="https://drive.google.com/file/d/1HykLlDuN5CqKgpKe6o6eZbUHl4p6IDPy/preview" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe>
+            </div>
         </div>
     </div>
+    
     <div id="modal-video" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
         <div class="bg-white w-[95%] md:w-[70%] max-w-4xl rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in relative">
             <div class="bg-primary text-white p-4 flex justify-between items-center shadow-md z-10">
@@ -314,7 +330,7 @@
                 <button onclick="tutupVideo()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
             <div class="flex-1 bg-black p-0 relative aspect-video">
-                <iframe src="MASUKKAN_PAUTAN_EMBED_YOUTUBE_DI_SINI" class="w-full h-full outline-none" allowfullscreen></iframe>
+                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" class="w-full h-full outline-none" allowfullscreen></iframe>
             </div>
         </div>
     </div>
@@ -357,11 +373,8 @@
             try {
                 errorBox.classList.add('hidden');
                 if (isSignUpMode) {
-                    // Daftar akaun baharu di Firebase Auth
                     const userCredential = await window.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
                     const user = userCredential.user;
-                    
-                    // Cipta profil awal di Firestore (Beri 5 kredit percuma untuk pengguna baharu!)
                     const userRef = window.doc(window.firebaseDb, "pelajar", user.uid);
                     await window.setDoc(userRef, {
                         email: email,
@@ -370,7 +383,6 @@
                         tarikhDaftar: new Date().toISOString()
                     });
                 } else {
-                    // Log masuk biasa
                     await window.signInWithEmailAndPassword(window.firebaseAuth, email, password);
                 }
             } catch (error) {
@@ -384,7 +396,6 @@
             let extractedName = user.email.split('@')[0];
             extractedName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1);
 
-            // Ambil data dari Firestore
             const userRef = window.doc(window.firebaseDb, "pelajar", user.uid);
             const userSnap = await window.getDoc(userRef);
 
@@ -393,13 +404,11 @@
                 userKredit = data.kredit || 0;
                 userSkor = data.skor || 0;
             } else {
-                // Jika akaun wujud di Auth tapi tiada dokumen Firestore
                 userKredit = 5;
                 userSkor = 0;
                 await window.setDoc(userRef, { email: user.email, kredit: 5, skor: 0 });
             }
 
-            // Kemas kini Paparan UI
             document.getElementById('display-nama').innerText = extractedName;
             document.getElementById('chat-greeting').innerHTML = `Hai <strong>${extractedName}</strong>! 👋`;
             document.getElementById('profil-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(extractedName)}&background=1E3A8A&color=fff`;
@@ -439,7 +448,6 @@
 
         function handleLoginEnter(e) { if(e.key === 'Enter') { e.preventDefault(); prosesAutentikasi(); } }
 
-        // KAWALAN DASHBOARD & MODAL
         let grafDilukis = false; 
         function lukisGrafPrestasi() {
             if (grafDilukis) return;
@@ -511,7 +519,6 @@
             hantarPromptSegera(promptText);
         }
 
-        // FUNGSI AI & KREDIT
         let selectedImageBase64 = null;
         function mulaMendengar() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -561,9 +568,8 @@
         }
 
         async function sendMessage() {
-            // SEMAK KREDIT SEBELUM HANTAR KE AI
             if (userKredit <= 0) {
-                alert("⚠️️ Baki kredit awan anda telah habis! Sila tekan butang 'Top-up Kredit' di bar sisi.");
+                alert("⚠ Baki kredit awan anda telah habis! Sila tekan butang 'Top-up Kredit' di bar sisi.");
                 return;
             }
 
@@ -587,7 +593,6 @@
                 const data = await response.json();
                 document.getElementById(loadingId).remove();
 
-                // TOLAK 1 KREDIT DI FIRESTORE
                 userKredit -= 1;
                 userSkor += 1;
                 const userRef = window.doc(window.firebaseDb, "pelajar", currentUserUid);
