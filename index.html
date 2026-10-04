@@ -44,7 +44,6 @@
         .hover-card { transition: all 0.3s ease; }
         .hover-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         
-        /* Gaya tambahan untuk gambar rajah SVG janaan AI supaya lebih kemas */
         svg { background-color: white; border-radius: 8px; border: 1px solid #CBD5E1; margin: 10px 0; max-width: 100%; height: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     </style>
 </head>
@@ -156,22 +155,34 @@
                 <div class="flex items-start space-x-3 md:space-x-4 w-full md:w-4/5 animate-fade-in">
                     <div class="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-md border-2 border-white"><i class="fas fa-robot"></i></div>
                     <div class="chat-bubble-bot p-4 md:p-5 rounded-2xl text-gray-800 text-sm md:text-base shadow-sm border border-blue-100 leading-relaxed">
-                        <span id="chat-greeting">Hai <strong>Pelajar</strong>! 👋</span> <br><br>Sistem AI kini dilengkapi kemampuan menghasilkan <strong>Gambar Rajah (Grafik Visual)</strong>. Tekan butang di bawah untuk mencubanya!
+                        <span id="chat-greeting">Hai <strong>Pelajar</strong>! 👋</span> <br><br>Sistem AI kini menyokong format Teks dan Visual. Hidupkan suis <strong>"Mod Gambar Rajah"</strong> di bawah sebelum menekan butang jika anda mahu AI melukis rajah (SVG)!
                     </div>
                 </div>
             </div>
 
-            <!-- BUTANG ARAHAN BERGAMBAR -->
             <div class="p-4 md:p-6 bg-white border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] flex flex-col">
+                
+                <!-- SUIS PILIHAN FORMAT (TOGGLE SWITCH) -->
+                <div class="max-w-4xl mx-auto w-full mb-3 flex items-center justify-between bg-indigo-50 border border-indigo-100 px-4 py-2.5 rounded-xl shadow-sm">
+                    <span class="text-xs md:text-sm font-bold text-primary flex items-center">
+                        <i class="fas fa-image mr-2 text-indigo-500"></i> Jana Berserta Gambar Rajah (SVG)
+                    </span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <!-- Default ditutup untuk jimat token API -->
+                        <input type="checkbox" id="toggle-imej" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                </div>
+
                 <div class="flex space-x-2 mb-3 overflow-x-auto pb-1 hide-scrollbar max-w-4xl mx-auto w-full">
                     <button onclick="janaSoalanK1()" class="whitespace-nowrap bg-white border border-blue-200 text-primary px-4 py-1.5 rounded-full text-[11px] md:text-xs font-bold hover:bg-blue-50 transition shadow-sm flex items-center">
-                        <i class="fas fa-draw-polygon text-blue-500 mr-1.5"></i> Ujian Bergambar Kertas 1
+                        <i class="fas fa-bullseye text-blue-500 mr-1.5"></i> Ujian Kertas 1
                     </button>
                     <button onclick="janaSoalanK2()" class="whitespace-nowrap bg-white border border-blue-200 text-primary px-4 py-1.5 rounded-full text-[11px] md:text-xs font-bold hover:bg-blue-50 transition shadow-sm flex items-center">
-                        <i class="fas fa-chart-line text-green-500 mr-1.5"></i> Graf & Rajah Kertas 2
+                        <i class="fas fa-chart-line text-green-500 mr-1.5"></i> Ujian Kertas 2
                     </button>
                     <button onclick="janaSoalanKBAT()" class="whitespace-nowrap bg-white border border-blue-200 text-primary px-4 py-1.5 rounded-full text-[11px] md:text-xs font-bold hover:bg-blue-50 transition shadow-sm flex items-center">
-                        <i class="fas fa-brain text-purple-500 mr-1.5"></i> Situasi KBAT Berserta Imej
+                        <i class="fas fa-brain text-purple-500 mr-1.5"></i> Soalan KBAT
                     </button>
                 </div>
 
@@ -198,7 +209,7 @@
                         </button>
                         
                         <div class="flex-1 relative">
-                            <textarea id="chat-input" rows="1" placeholder="Minta bantuan atau jana soalan bergambar..." class="w-full bg-gray-100 border border-gray-200 rounded-2xl md:rounded-3xl pl-5 pr-12 py-3 md:py-4 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all shadow-inner resize-none text-sm md:text-base" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" onkeypress="handleKeyPress(event)"></textarea>
+                            <textarea id="chat-input" rows="1" placeholder="Minta bantuan atau jana soalan..." class="w-full bg-gray-100 border border-gray-200 rounded-2xl md:rounded-3xl pl-5 pr-12 py-3 md:py-4 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all shadow-inner resize-none text-sm md:text-base" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" onkeypress="handleKeyPress(event)"></textarea>
                         </div>
 
                         <button onclick="sendMessage()" class="p-3 md:p-4 bg-secondary text-white rounded-full flex items-center justify-center hover:bg-orange-600 transition-transform active:scale-95 shadow-md group">
@@ -450,7 +461,7 @@
         function tutupVideo() { document.getElementById('modal-video').classList.add('hidden'); }
 
 
-        // ================= FUNGSI JANA SOALAN BERGAMBAR (SVG) =================
+        // ================= FUNGSI JANA SOALAN (LOGIK SUIS FORMAT) =================
         function hantarPromptSegera(teksPrompt) {
             paparSembang();
             const inputChat = document.getElementById('chat-input');
@@ -458,18 +469,37 @@
             sendMessage();
         }
 
-        // Arahan paksaan kepada AI untuk menghasilkan lukisan SVG tulen
         function janaSoalanK1() {
-            const p = "Bina SATU soalan Mock Exam Kertas 1 Matematik Tambahan SPM (format KSSM). WAJIB: Sertakan gambar rajah (contoh: graf, segi tiga, atau rajah Venn) menggunakan kod HTML <svg> (saiz width='300' height='300'). Pastikan rajah kemas, mempunyai label, dan lukis terus kod SVG tanpa diletakkan dalam markdown code block. Berikan soalan sahaja dahulu tanpa jawapan akhir.";
-            hantarPromptSegera(p);
+            const gunaImej = document.getElementById('toggle-imej').checked;
+            let promptText = "";
+            if(gunaImej) {
+                promptText = "Bina SATU soalan Mock Exam Kertas 1 Matematik Tambahan SPM (format KSSM). WAJIB: Sertakan gambar rajah (contoh: graf, segi tiga, atau rajah Venn) menggunakan kod HTML <svg> (saiz width='300' height='300'). Pastikan rajah kemas, mempunyai label, dan lukis terus kod SVG tanpa diletakkan dalam markdown code block. Berikan soalan sahaja dahulu tanpa jawapan akhir.";
+            } else {
+                promptText = "Tolong bina SATU soalan Mock Exam Kertas 1 Matematik Tambahan SPM (format KSSM terkini) dalam bentuk teks sepenuhnya tanpa sebarang lukisan SVG. Berikan soalan sahaja dahulu supaya saya boleh cuba jawab.";
+            }
+            hantarPromptSegera(promptText);
         }
+
         function janaSoalanK2() {
-            const p = "Bina SATU soalan Mock Exam Kertas 2 (Bahagian B) Matematik Tambahan SPM (format KSSM). WAJIB: Sertakan gambar rajah (contoh: lengkung pengamiran, bulatan, atau vektor) menggunakan kod HTML <svg> yang kemas (bersaiz 300x300). Tulis kod <svg> secara terus (jangan guna markdown code block) supaya pelayar web saya dapat memaparkannya sebagai imej grafik. Berikan soalan sahaja dahulu.";
-            hantarPromptSegera(p);
+            const gunaImej = document.getElementById('toggle-imej').checked;
+            let promptText = "";
+            if(gunaImej) {
+                promptText = "Bina SATU soalan Mock Exam Kertas 2 (Bahagian B) Matematik Tambahan SPM (format KSSM). WAJIB: Sertakan gambar rajah (contoh: lengkung pengamiran, bulatan, atau vektor) menggunakan kod HTML <svg> yang kemas (bersaiz 300x300). Tulis kod <svg> secara terus (jangan guna markdown code block) supaya pelayar web saya dapat memaparkannya sebagai imej grafik. Berikan soalan sahaja dahulu.";
+            } else {
+                promptText = "Tolong bina SATU soalan Mock Exam Kertas 2 (Bahagian B) Matematik Tambahan SPM (format KSSM terkini) dalam bentuk teks sepenuhnya tanpa lukisan SVG. Berikan soalan sahaja dahulu supaya saya boleh cuba jawab.";
+            }
+            hantarPromptSegera(promptText);
         }
+
         function janaSoalanKBAT() {
-            const p = "Bina SATU soalan KBAT Matematik Tambahan SPM yang mencabar minda berkaitan aplikasi kehidupan sebenar. WAJIB: Lukiskan gambaran visual situasi tersebut (contoh: jambatan, roket, atau landasan) menggunakan kod <svg> bersaiz 300x300. Tulis kod SVG tersebut secara terus tanpa markdown block. Berikan soalan sahaja dahulu tanpa jalan kira.";
-            hantarPromptSegera(p);
+            const gunaImej = document.getElementById('toggle-imej').checked;
+            let promptText = "";
+            if(gunaImej) {
+                promptText = "Bina SATU soalan KBAT Matematik Tambahan SPM yang mencabar minda berkaitan aplikasi kehidupan sebenar. WAJIB: Lukiskan gambaran visual situasi tersebut (contoh: jambatan, roket, atau landasan) menggunakan kod <svg> bersaiz 300x300. Tulis kod SVG tersebut secara terus tanpa markdown block. Berikan soalan sahaja dahulu tanpa jalan kira.";
+            } else {
+                promptText = "Berikan saya SATU soalan KBAT (Kemahiran Berfikir Aras Tinggi) Matematik Tambahan SPM yang mencabar minda dalam bentuk teks sepenuhnya tanpa lukisan SVG. Berikan soalan sahaja dahulu supaya saya boleh berfikir.";
+            }
+            hantarPromptSegera(promptText);
         }
 
 
@@ -495,17 +525,15 @@
             recognition.onspeechend = function() { recognition.stop(); };
             recognition.onend = function() {
                 btnMic.classList.add('text-gray-400', 'bg-gray-50'); btnMic.classList.remove('text-white', 'bg-red-500', 'animate-pulse');
-                inputChat.placeholder = "Minta bantuan atau jana soalan bergambar...";
+                inputChat.placeholder = "Minta bantuan atau jana soalan...";
             };
             recognition.start();
         }
 
         function formatAIResponse(text) {
-            // Helah utama: Buang tag markdown jika AI degil meletakkan kod lukisan dalam kotak kod
             text = text.replace(/```(svg|html|xml)\n?/gi, '');
             text = text.replace(/```\n?/g, '');
             
-            // Asingkan rajah SVG supaya tag <br> tidak merosakkan garisan lukisan grafik
             let parts = text.split(/(<svg[\s\S]*?<\/svg>)/gi);
             for (let i = 0; i < parts.length; i++) {
                 if (!parts[i].toLowerCase().startsWith('<svg')) {
@@ -581,7 +609,7 @@
                             <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
                             <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
                         </span>
-                        <i class="text-blue-600 font-medium ml-2">Sedang melukis rajah & merangka soalan...</i>
+                        <i class="text-blue-600 font-medium ml-2">Sedang merangka jawapan...</i>
                     </div>
                 </div>`;
             chatBox.insertAdjacentHTML('beforeend', botHtml);
