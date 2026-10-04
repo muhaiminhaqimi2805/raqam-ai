@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raqam.ai - Smart Math Tutor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    
+    <!-- ================= BAHARU: KONFIGURASI MATHJAX ================= -->
+    <script>
+        window.MathJax = {
+            tex: {
+                // Arahkan MathJax untuk membaca simbol $ sebagai formula Matematik
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { primary: '#1E3A8A', secondary: '#F97316' } }
+            }
+        }
+    </script>
+    <style>
+        :root { color-scheme: light; }
+        .chat-bubble-bot { background-color: #E0E7FF; border-bottom-left-radius: 0; }
+        .chat-bubble-user { background-color: #1E3A8A; color: white; border-bottom-right-radius: 0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        
+        .menu-active { background-color: #1e40af; border-left-width: 4px; border-color: #F97316; color: white; }
+        .menu-inactive { color: #d1d5db; border-left-width: 4px; border-color: transparent; }
+        .menu-inactive:hover { background-color: #1e40af; color: white; }
+        
+        .hover-card { transition: all 0.3s ease; }
+        .hover-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans flex h-screen overflow-hidden text-gray-800">
+
+    <!-- SIDEBAR -->
+    <aside class="hidden md:flex w-64 bg-primary text-white flex-col justify-between transition-all duration-300 shadow-xl z-20">
+        <div>
+            <div class="p-6 flex items-center space-x-3 border-b border-blue-800">
+                <div class="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center font-bold text-xl shadow-md">R</div>
+                <h1 class="text-2xl font-bold tracking-wider">Raqam<span class="text-secondary">.ai</span></h1>
+            </div>
+            <nav class="mt-4" id="sidebar-menu">
+                <button onclick="paparDashboard()" id="btn-dashboard" class="w-full flex items-center py-3 px-6 transition-colors text-left menu-inactive">
+                    <i class="fas fa-home w-6 text-center"></i> <span class="ml-2">Dashboard</span>
+                </button>
+                <button onclick="paparSembang()" id="btn-chat" class="w-full flex items-center py-3 px-6 transition-colors text-left menu-active">
+                    <i class="fas fa-robot w-6 text-center"></i> <span class="ml-2">Socratic AI</span>
+                </button>
+                
+                <button onclick="janaMockExam()" class="w-full flex items-center py-3 px-6 text-gray-300 hover:bg-blue-800 hover:text-white transition-colors text-left">
+                    <i class="fas fa-file-alt w-6 text-center text-green-400"></i> <span class="ml-2">Jana Mock Exam</span>
+                </button>
+
+                <hr class="border-blue-800 my-2 mx-4">
+                
+                <button onclick="bukaBukuTeksT4()" class="w-full flex items-center py-3 px-6 text-gray-300 hover:bg-blue-800 hover:text-white transition-colors text-left">
+                    <i class="fas fa-book w-6 text-center text-blue-300"></i> <span class="ml-2">Buku Teks Ting. 4</span>
+                </button>
+                <button onclick="bukaBukuTeksT5()" class="w-full flex items-center py-3 px-6 text-gray-300 hover:bg-blue-800 hover:text-white transition-colors text-left">
+                    <i class="fas fa-book-open w-6 text-center text-blue-300"></i> <span class="ml-2">Buku Teks Ting. 5</span>
+                </button>
+                <button onclick="bukaKoleksi()" class="w-full flex items-center py-3 px-6 text-gray-300 hover:bg-blue-800 hover:text-white transition-colors text-left">
+                    <i class="fas fa-file-signature w-6 text-center text-yellow-400"></i> <span class="ml-2">Koleksi Pembuktian</span>
+                </button>
+                <button onclick="bukaVideo()" class="w-full flex items-center py-3 px-6 text-gray-300 hover:bg-blue-800 hover:text-white transition-colors text-left">
+                    <i class="fas fa-play-circle w-6 text-center text-secondary"></i> <span class="ml-2">Video Masterclass</span>
+                </button>
+            </nav>
+        </div>
+        <div class="p-6">
+            <div class="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl p-5 text-sm shadow-lg border border-blue-700">
+                <p class="font-bold mb-1 text-white">Pro Plan</p>
+                <p class="text-blue-200 mb-4 text-xs leading-relaxed">Unlimited AI OCR scans & Full Working Steps.</p>
+                <button class="w-full bg-secondary text-white py-2.5 rounded-lg font-bold hover:bg-orange-600 transition-transform active:scale-95 shadow-md">Upgrade Now</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <!-- HEADER -->
+        <header class="bg-white shadow-sm p-4 md:p-6 flex justify-between items-center z-10 relative">
+            <div class="flex items-center space-x-4">
+                <button class="md:hidden text-gray-500 hover:text-primary"><i class="fas fa-bars text-xl"></i></button>
+                <div>
+                    <h2 id="header-title" class="text-xl md:text-2xl font-bold text-gray-800 flex items-center">
+                        Socratic AI Tutor
+                        <button id="btn-reset-memory" onclick="resetMemory()" class="ml-4 text-[10px] md:text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-full hover:bg-red-100 transition shadow-sm border border-red-200 flex items-center" title="Padam memori">
+                            <i class="fas fa-broom mr-1.5"></i> Bersihkan Memori
+                        </button>
+                    </h2>
+                    <p id="header-subtitle" class="text-xs md:text-sm text-gray-500 mt-1">Gunakan suara atau taip soalan anda.</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2 md:space-x-3 overflow-x-auto">
+                <button onclick="paparDashboard()" class="md:hidden bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-xs font-bold border border-gray-200 shadow-sm flex items-center whitespace-nowrap"><i class="fas fa-home mr-1"></i> Dashboard</button>
+                <button onclick="paparSembang()" class="md:hidden bg-blue-100 text-primary px-3 py-1.5 rounded-full text-xs font-bold border border-blue-200 shadow-sm flex items-center whitespace-nowrap"><i class="fas fa-robot mr-1"></i> Chat</button>
+                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary shadow-sm ring-2 ring-white cursor-pointer hidden md:block flex-shrink-0">
+                    <img src="https://ui-avatars.com/api/?name=Muhaimin+Haqimi&background=1E3A8A&color=fff" alt="Profile">
+                </div>
+            </div>
+        </header>
+
+        <!-- ================= KAWASAN 1: SOCRATIC AI CHAT ================= -->
+        <div id="section-chat" class="flex-1 bg-white flex flex-col overflow-hidden">
+            <div id="chat-box" class="flex-1 p-4 md:p-8 overflow-y-auto space-y-6 bg-slate-50 scroll-smooth">
+                <div class="flex items-start space-x-3 md:space-x-4 w-full md:w-4/5 animate-fade-in">
+                    <div class="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-md border-2 border-white"><i class="fas fa-robot"></i></div>
+                    <div class="chat-bubble-bot p-4 md:p-5 rounded-2xl text-gray-800 text-sm md:text-base shadow-sm border border-blue-100 leading-relaxed">
+                        Hai <strong>Muhaimin</strong>! 👋 <br><br>Anda mahu menguji tahap kefahaman anda? Tekan mana-mana butang <strong>Arahan Pantas</strong> di bawah untuk menjana soalan Mock Exam SPM yang baharu!
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 md:p-6 bg-white border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] flex flex-col">
+                
+                <div class="flex space-x-2 mb-3 overflow-x-auto pb-1 hide-scrollbar max-w-4xl mx-auto w-full">
+                    <button onclick="hantarPromptSegera('Tolong bina SATU soalan Mock Exam Kertas 1 Matematik Tambahan SPM (format KSSM terkini). Berikan soalan sahaja dahulu supaya saya boleh cuba jawab.')" class="whitespace-nowrap bg-white border border-blue-200 text-primary px-4 py-1.5 rounded-full text-[11px] md:text-xs font-bold hover:bg-blue-50 transition shadow-sm flex items-center">
+                        <i class="fas fa-bullseye text-blue-500 mr-1.5"></i> Ujian Kertas 1
+                    </button>
+                    <button onclick="hantarPromptSegera('Tolong bina SATU soalan Mock Exam Kertas 2 (Bahagian B) Matematik Tambahan SPM (format KSSM terkini). Berikan soalan sahaja dahulu supaya saya boleh cuba jawab.')" class="whitespace-nowrap bg-white border border-blue-200 text-primary px-4 py-1.5 rounded-full text-[11px] md:text-xs font-bold hover:bg-blue-50 transition shadow-sm flex items-center">
+                        <i class="fas fa-edit text-green-500 mr-1.5"></i> Ujian Kertas 2
+                    </button>
+                    <button onclick="hantarPromptSegera('Berikan saya SATU soalan KBAT (Kemahiran Berfikir Aras Tinggi) Matematik Tambahan SPM yang mencabar minda. Berikan soalan sahaja dahulu.')" class="whitespace-nowrap bg-white border border-blue-200 text-primary px-4 py-1.5 rounded-full text-[11px] md:text-xs font-bold hover:bg-blue-50 transition shadow-sm flex items-center">
+                        <i class="fas fa-brain text-purple-500 mr-1.5"></i> Soalan KBAT
+                    </button>
+                </div>
+
+                <div class="max-w-4xl mx-auto flex flex-col space-y-3 w-full">
+                    
+                    <div id="image-preview-container" class="hidden relative inline-block max-w-[150px]">
+                        <img id="image-preview" src="" alt="Preview" class="w-full h-auto rounded-lg border-2 border-primary shadow-md">
+                        <button onclick="removeImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 shadow-md"><i class="fas fa-times"></i></button>
+                    </div>
+
+                    <div class="flex items-end space-x-2 md:space-x-3">
+                        <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleImageSelection(event)">
+                        <input type="file" id="gallery-input" accept="image/*" class="hidden" onchange="handleImageSelection(event)">
+
+                        <button onclick="document.getElementById('camera-input').click()" class="p-3 md:p-4 text-gray-400 hover:text-primary bg-gray-50 hover:bg-blue-50 rounded-full transition-colors" title="Buka Kamera">
+                            <i class="fas fa-camera text-lg md:text-xl"></i>
+                        </button>
+                        
+                        <button onclick="document.getElementById('gallery-input').click()" class="p-3 md:p-4 text-gray-400 hover:text-primary bg-gray-50 hover:bg-blue-50 rounded-full transition-colors hidden md:block" title="Muat Naik Gambar">
+                            <i class="fas fa-image text-lg md:text-xl"></i>
+                        </button>
+                        
+                        <button onclick="mulaMendengar()" id="btn-mic" class="p-3 md:p-4 text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 rounded-full transition-colors" title="Bercakap dengan AI">
+                            <i class="fas fa-microphone text-lg md:text-xl"></i>
+                        </button>
+                        
+                        <div class="flex-1 relative">
+                            <textarea id="chat-input" rows="1" placeholder="Minta bantuan atau jana soalan..." class="w-full bg-gray-100 border border-gray-200 rounded-2xl md:rounded-3xl pl-5 pr-12 py-3 md:py-4 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all shadow-inner resize-none text-sm md:text-base" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" onkeypress="handleKeyPress(event)"></textarea>
+                        </div>
+
+                        <button onclick="sendMessage()" class="p-3 md:p-4 bg-secondary text-white rounded-full flex items-center justify-center hover:bg-orange-600 transition-transform active:scale-95 shadow-md group">
+                            <i class="fas fa-paper-plane group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= KAWASAN 2: DASHBOARD PRESTASI ================= -->
+        <div id="section-dashboard" class="flex-1 bg-slate-50 overflow-y-auto p-6 md:p-10 hidden">
+            <div class="max-w-6xl mx-auto animate-fade-in">
+                
+                <div class="bg-gradient-to-r from-primary to-blue-700 rounded-3xl p-8 text-white shadow-xl mb-8 flex flex-col md:flex-row justify-between items-center relative overflow-hidden hover-card cursor-pointer" onclick="paparSembang()">
+                    <div class="absolute -right-10 -top-10 opacity-20"><i class="fas fa-square-root-alt text-9xl"></i></div>
+                    <div class="z-10 relative">
+                        <h2 class="text-3xl font-bold mb-2">Selamat Datang, Muhaimin! 🚀</h2>
+                        <p class="text-blue-200 text-lg">Teruskan usaha cemerlang anda dalam Matematik Tambahan hari ini.</p>
+                    </div>
+                    <div class="mt-6 md:mt-0 z-10">
+                        <button class="bg-secondary hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-transform active:scale-95 flex items-center">
+                            <i class="fas fa-pen mr-2"></i> Mula Belajar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center hover-card cursor-pointer">
+                        <div class="w-14 h-14 rounded-full bg-blue-100 text-primary flex items-center justify-center text-2xl mr-4"><i class="fas fa-question"></i></div>
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Soalan Diselesaikan</p>
+                            <h3 id="stat-soalan" class="text-3xl font-bold text-gray-800">42</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center hover-card cursor-pointer">
+                        <div class="w-14 h-14 rounded-full bg-orange-100 text-secondary flex items-center justify-center text-2xl mr-4"><i class="fas fa-fire"></i></div>
+                        <div><p class="text-gray-500 text-sm font-medium">Study Streak</p><h3 class="text-3xl font-bold text-gray-800">5 Hari</h3></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center hover-card cursor-pointer">
+                        <div class="w-14 h-14 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-2xl mr-4"><i class="fas fa-chart-line"></i></div>
+                        <div><p class="text-gray-500 text-sm font-medium">Tahap Kefahaman</p><h3 class="text-3xl font-bold text-gray-800">Cemerlang</h3></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover-card">
+                        <div class="flex justify-between items-center border-b pb-4 mb-4">
+                            <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-chart-area mr-2 text-primary"></i> Analitik Pembelajaran Mingguan</h3>
+                            <span class="text-xs font-bold bg-blue-50 text-primary px-3 py-1 rounded-full border border-blue-100">+12% vs Minggu Lepas</span>
+                        </div>
+                        <div class="relative h-64 w-full">
+                            <canvas id="prestasiChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover-card">
+                        <h3 class="text-lg font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-tasks mr-2 text-green-500"></i> Penguasaan Topik</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between text-sm mb-2"><span class="font-bold text-gray-700">Fungsi Kuadratik</span><span class="text-green-500 font-bold">85%</span></div>
+                                <div class="w-full bg-gray-100 rounded-full h-3 shadow-inner"><div class="bg-green-500 h-3 rounded-full" style="width: 85%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2"><span class="font-bold text-gray-700">Pembezaan</span><span class="text-orange-500 font-bold">45%</span></div>
+                                <div class="w-full bg-gray-100 rounded-full h-3 shadow-inner"><div class="bg-orange-500 h-3 rounded-full" style="width: 45%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2"><span class="font-bold text-gray-700">Hukum Linear</span><span class="text-blue-500 font-bold">60%</span></div>
+                                <div class="w-full bg-gray-100 rounded-full h-3 shadow-inner"><div class="bg-blue-500 h-3 rounded-full" style="width: 60%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2"><span class="font-bold text-gray-700">Pengamiran</span><span class="text-gray-400 font-bold">10%</span></div>
+                                <div class="w-full bg-gray-100 rounded-full h-3 shadow-inner"><div class="bg-gray-400 h-3 rounded-full" style="width: 10%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover-card mb-8">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-history mr-2 text-secondary"></i> Sambung Aktiviti Terkini</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-xl hover:bg-blue-50 hover:border-blue-200 cursor-pointer transition shadow-sm" onclick="janaMockExam()">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-full bg-blue-100 text-primary flex items-center justify-center mr-4 text-lg"><i class="fas fa-file-alt"></i></div>
+                                <div>
+                                    <p class="font-bold text-gray-800">Jana Set Mock Exam</p>
+                                    <p class="text-xs text-gray-500">Latih tubi berfokus</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-xl hover:bg-orange-50 hover:border-orange-200 cursor-pointer transition shadow-sm" onclick="bukaBukuTeksT4()">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-full bg-orange-100 text-secondary flex items-center justify-center mr-4 text-lg"><i class="fas fa-book"></i></div>
+                                <div>
+                                    <p class="font-bold text-gray-800">Membaca Bab 2: Fungsi</p>
+                                    <p class="text-xs text-gray-500">Semalam, 8:15 PM</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL-MODAL PERPUSTAKAAN -->
+    <div id="modal-buku-teks-t4" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white w-[95%] md:w-[85%] h-[90%] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in relative">
+            <div class="bg-primary text-white p-4 flex justify-between items-center shadow-md z-10">
+                <h3 class="font-bold text-lg flex items-center"><i class="fas fa-book mr-3"></i> Buku Teks Add Math (Tingkatan 4)</h3>
+                <button onclick="tutupBukuTeksT4()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="buku_teks_tingkatan_4.pdf" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
+        </div>
+    </div>
+    <div id="modal-buku-teks-t5" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white w-[95%] md:w-[85%] h-[90%] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in relative">
+            <div class="bg-primary text-white p-4 flex justify-between items-center shadow-md z-10">
+                <h3 class="font-bold text-lg flex items-center"><i class="fas fa-book-open mr-3"></i> Buku Teks Add Math (Tingkatan 5)</h3>
+                <button onclick="tutupBukuTeksT5()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="buku_teks_tingkatan_5.pdf" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
+        </div>
+    </div>
+    <div id="modal-koleksi" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white w-[95%] md:w-[85%] h-[90%] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in relative">
+            <div class="bg-primary text-white p-4 flex justify-between items-center shadow-md z-10">
+                <h3 class="font-bold text-lg flex items-center text-yellow-300"><i class="fas fa-file-signature mr-3"></i> Koleksi Pembuktian Add Math SPM</h3>
+                <button onclick="tutupKoleksi()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 bg-white p-2 relative" style="color-scheme: light;"><iframe src="koleksi_pembuktian.pdf" class="w-full h-full rounded-lg shadow-inner border border-gray-300 bg-white" style="background-color: white;"></iframe></div>
+        </div>
+    </div>
+    <div id="modal-video" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white w-[95%] md:w-[70%] max-w-4xl rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in relative">
+            <div class="bg-primary text-white p-4 flex justify-between items-center shadow-md z-10">
+                <h3 class="font-bold text-lg flex items-center"><i class="fas fa-play-circle mr-3 text-secondary"></i> Video Masterclass: Penerangan Topik</h3>
+                <button onclick="tutupVideo()" class="text-white hover:text-red-300 transition bg-blue-800 hover:bg-blue-900 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 bg-black p-0 relative aspect-video">
+                <video id="video-player" controls class="w-full h-full outline-none">
+                    <source src="video_mengajar.mp4" type="video/mp4">
+                    Maaf, pelayar web anda tidak menyokong pemain video ini.
+                </video>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= KAWALAN DASHBOARD & GRAF =================
+        let grafDilukis = false; 
+
+        function lukisGrafPrestasi() {
+            if (grafDilukis) return;
+            const ctx = document.getElementById('prestasiChart').getContext('2d');
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(30, 58, 138, 0.5)'); 
+            gradient.addColorStop(1, 'rgba(30, 58, 138, 0.0)'); 
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu', 'Ahad'],
+                    datasets: [{
+                        label: 'Soalan Diselesaikan',
+                        data: [3, 5, 4, 12, 8, 15, 6],
+                        borderColor: '#1E3A8A', 
+                        backgroundColor: gradient,
+                        borderWidth: 3, tension: 0.4, fill: true,
+                        pointBackgroundColor: '#F97316', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointRadius: 5, pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#e5e7eb' } }, x: { grid: { display: false } } }
+                }
+            });
+            grafDilukis = true;
+        }
+
+        function paparDashboard() {
+            document.getElementById('section-chat').classList.add('hidden');
+            document.getElementById('section-dashboard').classList.remove('hidden');
+            document.getElementById('header-title').innerHTML = "Dashboard Prestasi";
+            document.getElementById('header-subtitle').innerText = "Pantau perkembangan pembelajaran anda.";
+            document.getElementById('btn-reset-memory').classList.add('hidden'); 
+            document.getElementById('btn-dashboard').className = "w-full flex items-center py-3 px-6 transition-colors text-left menu-active";
+            document.getElementById('btn-chat').className = "w-full flex items-center py-3 px-6 transition-colors text-left menu-inactive";
+            lukisGrafPrestasi();
+        }
+        
+        function paparSembang() {
+            document.getElementById('section-dashboard').classList.add('hidden');
+            document.getElementById('section-chat').classList.remove('hidden');
+            document.getElementById('header-title').innerHTML = `Socratic AI Tutor <button id="btn-reset-memory" onclick="resetMemory()" class="ml-4 text-[10px] md:text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-full hover:bg-red-100 transition shadow-sm border border-red-200 flex items-center"><i class="fas fa-broom mr-1.5"></i> Bersihkan Memori</button>`;
+            document.getElementById('header-subtitle').innerText = "Gunakan suara atau taip soalan anda.";
+            document.getElementById('btn-chat').className = "w-full flex items-center py-3 px-6 transition-colors text-left menu-active";
+            document.getElementById('btn-dashboard').className = "w-full flex items-center py-3 px-6 transition-colors text-left menu-inactive";
+        }
+
+        // KAWALAN MODAL
+        function bukaBukuTeksT4() { document.getElementById('modal-buku-teks-t4').classList.remove('hidden'); }
+        function tutupBukuTeksT4() { document.getElementById('modal-buku-teks-t4').classList.add('hidden'); }
+        function bukaBukuTeksT5() { document.getElementById('modal-buku-teks-t5').classList.remove('hidden'); }
+        function tutupBukuTeksT5() { document.getElementById('modal-buku-teks-t5').classList.add('hidden'); }
+        function bukaKoleksi() { document.getElementById('modal-koleksi').classList.remove('hidden'); }
+        function tutupKoleksi() { document.getElementById('modal-koleksi').classList.add('hidden'); }
+        function bukaVideo() { document.getElementById('modal-video').classList.remove('hidden'); }
+        function tutupVideo() { document.getElementById('modal-video').classList.add('hidden'); document.getElementById('video-player').pause(); }
+
+        function hantarPromptSegera(teksPrompt) {
+            const inputChat = document.getElementById('chat-input');
+            inputChat.value = teksPrompt;
+            sendMessage();
+        }
+
+        function janaMockExam() {
+            paparSembang(); 
+            const arahanMock = "Sila jana satu set mini Mock Exam Matematik Tambahan SPM (KSSM) yang mengandungi 3 soalan pelbagai aras (Senang, Sederhana, Sukar). Berikan soalan sahaja supaya saya boleh cuba jawab dahulu.";
+            hantarPromptSegera(arahanMock);
+        }
+
+        let selectedImageBase64 = null;
+        let skorSoalan = 42; 
+
+        // FUNGSI SUARA KE TEKS
+        function mulaMendengar() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { alert("Maaf, pelayar web anda tidak menyokong fungsi pengecaman suara."); return; }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ms-MY'; recognition.interimResults = false; recognition.maxAlternatives = 1;
+            const btnMic = document.getElementById('btn-mic');
+            const inputChat = document.getElementById('chat-input');
+
+            recognition.onstart = function() {
+                btnMic.classList.remove('text-gray-400', 'bg-gray-50'); btnMic.classList.add('text-white', 'bg-red-500', 'animate-pulse');
+                inputChat.placeholder = "Sedang mendengar (Sila bercakap)...";
+            };
+            recognition.onresult = function(event) {
+                const ucapan = event.results[0][0].transcript;
+                inputChat.value += (inputChat.value ? " " : "") + ucapan; 
+                inputChat.style.height = ''; inputChat.style.height = inputChat.scrollHeight + 'px';
+            };
+            recognition.onspeechend = function() { recognition.stop(); };
+            recognition.onend = function() {
+                btnMic.classList.add('text-gray-400', 'bg-gray-50'); btnMic.classList.remove('text-white', 'bg-red-500', 'animate-pulse');
+                inputChat.placeholder = "Minta bantuan untuk selesaikan soalan ini...";
+            };
+            recognition.onerror = function(event) {
+                console.error("Ralat Suara:", event.error); inputChat.placeholder = "Gagal menangkap suara. Sila taip...";
+            };
+            recognition.start();
+        }
+
+        // FUNGSI SEMBANG AI
+        function formatAIResponse(text) {
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+            return formatted.replace(/\n/g, '<br>');
+        }
+        function handleImageSelection(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImageBase64 = e.target.result;
+                    document.getElementById('image-preview').src = selectedImageBase64;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        function removeImage() {
+            selectedImageBase64 = null;
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('camera-input').value = ""; document.getElementById('gallery-input').value = "";
+        }
+        
+        async function resetMemory() {
+            if(!confirm("Anda pasti mahu membersihkan memori dan memulakan topik baharu?")) return;
+            try {
+                await fetch('/api/reset', { method: 'POST' });
+                const chatBox = document.getElementById('chat-box');
+                chatBox.innerHTML = `
+                    <div class="flex items-start space-x-3 md:space-x-4 w-full md:w-4/5 animate-fade-in">
+                        <div class="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-md border-2 border-white"><i class="fas fa-robot"></i></div>
+                        <div class="chat-bubble-bot p-4 md:p-5 rounded-2xl text-gray-800 text-sm md:text-base shadow-sm border border-blue-100 leading-relaxed">
+                            <strong>Memori berjaya dibersihkan! 🧹</strong><br><br>Sedia untuk topik baharu. Apa yang boleh saya bantu hari ini?
+                        </div>
+                    </div>
+                `;
+            } catch (error) { console.error("Gagal memadam memori:", error); }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value;
+            if(message.trim() === "" && !selectedImageBase64) return;
+            const chatBox = document.getElementById('chat-box');
+            let userContentHtml = '';
+            if (selectedImageBase64) { userContentHtml += `<img src="${selectedImageBase64}" class="w-full max-w-xs rounded-lg mb-2 border border-blue-800 shadow-sm">`; }
+            if (message.trim() !== "") { userContentHtml += `<span>${message.replace(/\n/g, '<br>')}</span>`; }
+            const userHtml = `
+                <div class="flex items-start justify-end space-x-3 w-full animate-fade-in mt-6">
+                    <div class="chat-bubble-user p-4 rounded-2xl text-sm md:text-base shadow-md max-w-[85%] md:max-w-2xl leading-relaxed flex flex-col items-end">
+                        ${userContentHtml}
+                    </div>
+                </div>`;
+            chatBox.insertAdjacentHTML('beforeend', userHtml);
+            input.value = ""; input.style.height = ''; 
+            const imageToSend = selectedImageBase64; removeImage(); chatBox.scrollTop = chatBox.scrollHeight;
+
+            const loadingId = "loading-" + Date.now();
+            const botHtml = `
+                <div id="${loadingId}" class="flex items-start space-x-3 md:space-x-4 w-full md:w-4/5 animate-fade-in mt-6">
+                    <div class="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-md border-2 border-white"><i class="fas fa-robot"></i></div>
+                    <div class="chat-bubble-bot p-4 rounded-2xl text-gray-800 text-sm shadow-sm flex items-center space-x-2 border border-blue-100">
+                        <span class="flex space-x-1">
+                            <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </span>
+                        <i class="text-blue-600 font-medium ml-2">Sedang merangka soalan / jawapan...</i>
+                    </div>
+                </div>`;
+            chatBox.insertAdjacentHTML('beforeend', botHtml);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message || "Tolong selesaikan soalan di dalam gambar ini.", image: imageToSend })
+                });
+                const data = await response.json(); document.getElementById(loadingId).remove();
+                
+                skorSoalan++; document.getElementById('stat-soalan').innerText = skorSoalan;
+                
+                const formattedReply = formatAIResponse(data.reply);
+                const finalBotHtml = `
+                    <div class="flex items-start space-x-3 md:space-x-4 w-full md:w-4/5 animate-fade-in mt-6">
+                        <div class="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-md border-2 border-white"><i class="fas fa-robot"></i></div>
+                        <div class="chat-bubble-bot p-4 md:p-5 rounded-2xl text-gray-800 text-sm md:text-base shadow-sm border border-blue-100 leading-relaxed overflow-x-auto">
+                            ${formattedReply}
+                        </div>
+                    </div>`;
+                chatBox.insertAdjacentHTML('beforeend', finalBotHtml); chatBox.scrollTop = chatBox.scrollHeight;
+                if (window.MathJax) MathJax.typesetPromise();
+            } catch (error) {
+                console.error("Ralat:", error);
+                document.getElementById(loadingId).innerHTML = `<div class="bg-red-50 p-4 rounded-xl text-red-600 text-sm shadow-sm border border-red-200">Maaf, pelayan tidak dapat memproses data.</div>`;
+            }
+        }
+        function handleKeyPress(e) { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+    </script>
+</body>
+</html>
